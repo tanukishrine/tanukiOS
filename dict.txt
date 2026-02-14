@@ -1,0 +1,378 @@
+# System variables
+
+line	currently selected line	
+count	number of lines to read
+latest	addr of last word in dict
+here	addr of next available space in dict
+inbuf	addr of input buffer
+>in	current pos in input buffer
+
+# Entry management
+
+' x	( -- w )
+	Find addr of x in dict.
+
+['] x	( -- ) *I*
+	Like "'", but compiles addr as a number literal.
+
+find	( sa sl -- w? f )
+	Find "sa sl" in dict. Return flag and, if found,
+        wordref.
+
+forget x	( -- )
+		Rewind dict (both latest and here) up to x's
+		previous entry.
+
+# Defining words
+
+: x ... ;	( -- )
+		Define a new word.
+
+create x	( -- )
+		Create a cell named x. Doesn't allocate.
+		Return addr of cell when x is called.
+
+compile,	( w -- )
+		Compile a call to wordref.
+
+[compile] x	( -- ) *I*
+		Compile word x to HERE.
+		Immediate words are not executed.
+
+compile x	( -- ) *I*
+		Meta compile: write wordref as a literal, so
+		that it compiles x when executed.
+
+value x		( n -- )
+		Creates cell x, when called pushes its value.	
+
+immediate	( -- )
+		Flag the latest defined word as immediate.
+
+literal		( n -- )
+		Write number n as a literal
+
+# Code generation
+
+...
+
+# Flow
+
+These words can only be used in definitons.
+
+if ...		Consume flag from the stack, execute 'if' case
+else ...	if true, 'else' case if false. The 'then' closes
+then		the conditional statement.
+		The 'else' is optional.
+
+[if] ...	Works outside definitions. No 'else' case.
+[then]
+
+begin ...	Conditional loop: 'until' consumes a flag,
+until		if false branch to 'begin', otherwise read next
+		word.
+
+begin ...	Unconditional loop: 'again' always branches to
+again		'begin'.
+
+begin ...	Counted loop: loop while n at the top of RS != 0
+next		and decrement n before each branch.
+
+leave		Exit loop at the next 'next' call.
+
+recurse		Loop back to beginning of current word
+		definition.
+
+(	( -- ) immediate
+	Comment. Ignore input until ")" is read.
+
+\	( -- ) immediate
+	Line comment. Ignore input until EOL.
+
+[	( -- ) immediate
+	Begin immediate mode.
+
+]	( -- )
+	End immediate mode.
+
+abort	( -- )
+	Reset PS and RS and return to user prompt.
+
+abort" ..."	( -- ) immediate
+		Compiles ." followed by abort.
+
+execute		( w -- )
+		Call to wordref.
+
+interpret	( -- )
+		Main interpret loop.
+
+quit	( -- )
+	Reset RS, return to user prompt.
+
+# Parameter Stack
+
+drop	( a -- )
+
+dup	( a -- a a )
+
+?dup	( a -- ?a a )
+	Dup if non-zero.
+
+nip	( a b -- b )
+
+over	( a b -- a b a )
+
+rot	( a b c -- b c a )
+
+nrot	( a b c -- c a b )
+
+swap	( a b -- b a )
+
+tuck	( a b -- b a b )
+
+2drop	( a a -- )
+
+2dup	( a b -- a b a b )
+
+# Return stack
+
+>r	( n -- R:n )
+
+r>	( R:n -- n )
+
+r@	( R:n -- n R:n )
+
+rdrop	( R:n -- )
+
+# Stacks meta
+
+.s	( -- )		Prints contents of PS.
+
+.r	( -- )		Prints contents of RS.
+
+depth	( -- n )	Size of PS in cell counts.
+
+rdepth	( -- n )	Size of RS in cell counts.
+
+# Memory
+
+@	( a -- n )
+	Fetch n at addr a.
+
+!	( n a -- )
+	Store n at addr a.
+
++!	( n a -- )
+	Increase number at addr a by n.
+
+,	( n -- )
+	Write n to addr pointed by here and incr here by 2.
+
+c@	( a -- c )
+	Fetch byte c at addr a.
+
+c@+	( a -- a+1 c )
+	Fetch byte c from addr a and incr a.
+
+c!	( c a -- )
+	Store byte c in addr a.
+
+c!+	( c a -- a+1 )
+	Store byte c in addr a and incr a.
+
+c,	( c -- )
+	Write byte c to addr pointed by here and incr here by 1.
+
+compare	( a1 a2 u -- f )
+	Compare u bytes between a1 and a2, return true if equal.
+
+allot	( n -- )
+	Incr here by n bytes.
+
+fill	( a n c )
+	Fill n bytes at addr a with byte c
+
+move	( a1 a2 u -- )
+	Copy u bytes from a1 to a2.
+
+to x	( n -- )
+	Set x to value n
+
+# Arithmetic / Bits
+
++	( a b -- a+b )
+
+-	( a b -- a-b )
+
+*	( a b -- a*b )
+
+/	( a b -- a/b )
+
+1+	( n -- n+1 )
+
+1-	( n -- n-1 )
+
+2+	( n -- n+2 )
+
+2-	( n -- n-2 )
+
+2-
+
+2*	( n -- n*2 )		Bitwise left shift.
+
+2/	( n -- n/2 )		Bitwise right shift.
+
+L>M	( n -- n<<8 )		Shift LSB to MSB.
+
+M>L	( n -- n>>8 )		Shift MSB to LSB.
+
+L|M	( n -- lsb msb )	Split n to LSB and MSB.
+
+sort	( a b -- l h )		Sort a and b, highest on top.
+
+max	( a b -- h )		h: high
+
+min	( a b -- l )		l: low
+
+mod	( a b -- r )		r: remainder
+
+/mod	( a b -- r q )		q: quotient
+
+not	( a -- 	~a )
+
+and	( a b -- a&b )
+
+or	( a b -- a|b )
+
+xor	( a b -- a^b )
+
+lshift	( n u -- x )		Shift n left by u bits.
+
+rshift	( n u -- x )		Shift n right by u bits.
+
+# Logic
+
+=	( n1 n2 -- f )
+
+<	( n1 n2 -- f )
+
+>	( n1 n2 -- f )
+
+>=	( n1 n2 -- f )
+
+<=	( n1 n2 -- f )
+
+0=	( n -- f )
+
+0<	( n -- f )
+
+0>=	( n -- f )
+
+# Strings and lines
+
+s" ..."	( -- ) *I*
+	Write ... to here as a string literal.
+
+s=	( sa1 sl1 sa2 sl2 -- f )
+	Returns whether string s1 == s2
+
+# Number formatting
+
+u.	( u -- )	Print n in unsigned decimal format.
+
+.	( n -- )	Print n in signed decimal format.
+
+.x	( n -- )	Print n's LSB in hex format, 2 wide.
+
+.X	( n -- )	Print n in hex format, 4 wide.
+
+# I/O
+
+," ..." ( -- )	Write ... to here.
+
+." ..." ( -- ) *I*	Compiles ... as string literal, followed
+			by a call to type.
+
+curword	( -- sa sl )	Fetch last read word.
+
+emit	( c -- )	Spit char c to the output stream.
+
+emitln	( a -- )	Emit line at addr a.
+
+in<	( -- c )	Read one char from buffered input. If
+			end of input, read new line.
+
+word	( -- sa sl )	Fetch next word from input stream.
+
+key?	( -- c? f )	Polls the keyboard for a key.
+
+key	( -- c )	Fetch char c from keyboard input.
+
+cr	( -- )		Emit newline.
+
+parse	( sa sl -- n? f )
+	Parses as a number and push the result.
+
+space	( -- )		Emit space character.
+
+type	( sa sl -- )	Emit string.
+
+word	( -- sa sl )	Read one word from buffered input.
+
+ASCII constants:
+BS	( -- 8 )	Backspace.o
+LF	( -- 10 )	Line feed.
+CR	( -- 13 )	Carriage return.
+BL	( -- 32 )	Space.
+
+# Block subsystem
+
+\s	( -- )
+	Interrupts the load of current block.
+
+blk(	( -- a )
+	Start addr of blk buffer.
+
+blk)	( -- a )
+	End addr of blk buffer, exclusive
+
+blk>	( -- u )
+	Currently active block.
+
+blk@	( n -- )
+	Read block n into buffer, make n active.
+
+blk!	( -- )
+	Write back into current block from buffer.
+
+load	( n -- )
+	Interprets block n as Forth code.
+
+thru	( n1 n2 -- )
+	Load all blocks between n1 and n2, inclusive.
+
+wipe	( n -- )
+	Empties block n.
+
+copy	( s d -- )
+	Copy contents of s block into d block.
+
+flush	( -- )
+	Write all blocks in RAM to disk.
+
+# Other
+
+boot	( -- )		Boot back to a fresh system.
+
+dump	( n a -- )	Print n bytes from addr a in hexdump
+			format.
+
+noop	( -- )		Do nothing.
+
+# Loaders
+
+Words used to load the related application from blocks:
+
+ED	Block Editor
+ME	Memory Editor

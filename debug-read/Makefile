@@ -3,14 +3,12 @@ default: run
 fdd_boot.bin: fdd_boot.asm
 	nasm $< -o $@
 
-# 17 sectors
 kernel.bin: kernel.asm
 	nasm $< -o $@
 	truncate -s $$((512 * 17)) $@
 
-# 64 sectors / 32 blocks
-blocks.bin: blocks.fs blocks.py
-	python3 blocks.py $< $@
+blocks.bin: blocks.asm
+	nasm $< -o $@
 	truncate -s $$((512 * 64)) $@
 
 # ==============================================================
