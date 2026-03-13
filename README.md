@@ -67,3 +67,35 @@ enter more complex environments.
   code or access hardware-specific operations.
 
 - Disk I/O: Read and write access to floppy disks.
+
+
+#### Running the OS
+
+Ensure you have QEMU and NASM installed on your system.
+
+To build and boot from an image, simply run:
+
+```make```
+
+By default, Makefile will build a floppy image and launch QEMU
+to interpret the raw binaries as a 5.25" 360kB floppy.
+
+If you desire to test the USB compatible image, run:
+
+```make usb```
+
+To load the USB image directly to a physical USB drive and 
+boot from it, the process should look something like this:
+
+1. Insert the USB drive and identify its device path (for
+   example `/dev/sdb`).
+
+2. Unmount any mounted partitions on the USB drive.
+
+3. Write the image:
+   `sudo dd if=hdd.img of=/dev/sdb bs=512`
+
+4. Flush pending writes:
+   `sync`
+
+5. Eject and remove the USB drive.
