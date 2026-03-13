@@ -4,6 +4,7 @@ A small 16-bit Forth operating system for the x86.
 
 ![main](https://i.imgur.com/veeE0bz.png)
 
+
 #### About
 
 tanuki OS is a small bare-metal operating system designed from
@@ -39,12 +40,12 @@ Alas, due to these goals, the OS is only suitable for the "power
 users" who are already familiar with Forth or willing to learn
 it. From an end-product perspective, tanuki OS is capable of
 producing DOS-like programs. For example, a fork of this
-project, Borbular, demonstrates its graphical capabilities.
+project, [Borbular](https://github.com/tanukishrine/borbular),
+demonstrates its graphical capabilities.
 
 The OS also has bootstrapping capabilities, allowing the user
 enter more complex environments.
 
-Link: [Borbular](https://github.com/tanukishrine/borbular)
 
 #### Features
 
