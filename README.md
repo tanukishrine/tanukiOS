@@ -44,7 +44,7 @@ project, [Borbular](https://github.com/tanukishrine/borbular),
 demonstrates its graphical capabilities.
 
 The OS also has bootstrapping capabilities, allowing the user
-enter more complex environments.
+to enter more complex environments.
 
 
 #### Features
@@ -69,7 +69,7 @@ enter more complex environments.
 - Disk I/O: Read and write access to floppy disks.
 
 
-#### Running the OS
+#### Installation
 
 Ensure you have QEMU and NASM installed on your system.
 
@@ -77,14 +77,14 @@ To build and boot from an image, simply run:
 
 ```make```
 
-By default, Makefile will build a floppy image and launch QEMU
-to interpret the raw binaries as a 5.25" 360kB floppy.
+By default, the Makefile will build a floppy image and launch
+QEMU to interpret the raw binaries as a 5.25" 360kB floppy.
 
-If you desire to test the USB compatible image, run:
+If you want to test the USB-compatible image, run:
 
 ```make usb```
 
-To load the USB image directly to a physical USB drive and 
+To write the USB image directly to a physical USB drive and 
 boot from it, the process should look something like this:
 
 1. Insert the USB drive and identify its device path (for
@@ -98,4 +98,39 @@ boot from it, the process should look something like this:
 4. Flush pending writes:
    `sync`
 
-5. Eject and remove the USB drive.
+5. Eject and remove the USB-drive.
+
+
+#### Design
+
+At the core, the kernel is a "dictionary" comprised of "words"
+stringed together as a linked list. When a word is read from the
+input stream, either from the user input or block memory, the
+interpreter searches backwards (from the most recently defined
+word) for a matching word in the dictionary. If the word is
+found, its "definition" is executed. Otherwise a "<name> word
+not found" error is returned and the program flow is aborted.
+
+The structure of a word laid out as such:
+
+```
+[name]           x bytes
+[link]           2 bytes
+[length + flag]  1 byte
+[payload]        x bytes
+```
+
+Where `name` is the name of a word, `link` points the previous
+dictionary entry.
+
+For example, `dup` is defined :
+
+```
+db 'dup'
+dw prev_addr
+db 3
+mov ax, [bp]
+add bp, 2
+mov [bp], ax
+ret
+```
