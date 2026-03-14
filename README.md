@@ -143,6 +143,6 @@ After the boot process, the instruction immediately jumps to the
 input. See `kernel.asm` under this respository for more a more
 detailed view on how each Forth words are defined.
 
-## Gallery
+## Video Demo
 
-![demo](https://i.imgur.com/iUDwRDy.mp4)
+[![thumbnail](https://i.imgur.com/riUOrQt.png)](https://i.imgur.com/iUDwRDy.mp4)
